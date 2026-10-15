@@ -834,6 +834,25 @@ const WORKLET = `class RecProc extends AudioWorkletProcessor{constructor(){super
 flush(){if(!this.n)return;const ch=this.buf[0].length,out=[];for(let c=0;c<ch;c++){const a=new Float32Array(this.n);let o=0;for(const b of this.buf){a.set(b[c],o);o+=b[c].length;}out.push(a);}this.port.postMessage(out,out.map(a=>a.buffer));this.buf=[];this.n=0;}
 process(inputs){if(!this.on)return false;const inp=inputs[0];if(inp&&inp.length){this.buf.push(inp.map(c=>c.slice()));this.n+=inp[0].length;if(this.n>=8192)this.flush();}return true;}}
 registerProcessor('rec-proc',RecProc);`;
+/* diagnóstico do microfone: diz exatamente o que bloqueou */
+function inAppBrowser() {
+  const ua = navigator.userAgent || '';
+  if (/MiuiBrowser/i.test(ua)) return 'Você está no navegador da Xiaomi, que não libera o microfone para páginas. Abra o link no Chrome: toque em ⋮ › “Abrir no Chrome”, ou copie o endereço e cole no Chrome.';
+  if (/; wv\)|FBAN|FBAV|Instagram|WhatsApp|GSA\/|Line\//i.test(ua)) return 'O link foi aberto dentro de outro app (leitor de QR, WhatsApp, Google ou rede social), que não libera o microfone. Toque em ⋮ › “Abrir no Chrome”, ou copie o endereço e cole no Chrome.';
+  return '';
+}
+async function micErrorMessage(e) {
+  const nm = e && e.name;
+  if (nm === 'NotFoundError') return 'Nenhum microfone foi encontrado neste aparelho.';
+  if (nm === 'NotReadableError' || nm === 'AbortError') return 'O microfone está ocupado por outro app (ligação, gravador, vídeo). Feche o outro app e tente de novo.';
+  if (nm !== 'NotAllowedError' && nm !== 'SecurityError') return 'Não foi possível abrir o microfone (' + (nm || 'erro') + ').';
+  const inApp = inAppBrowser(); if (inApp) return inApp;
+  let st = '';
+  try { st = (await navigator.permissions.query({ name: 'microphone' })).state; } catch (_) {}
+  if (st === 'denied') return 'O navegador guardou uma recusa do microfone para este site. Toque no ícone à esquerda do endereço › Permissões (ou Configurações do site) › Microfone › Permitir. Se não houver essa opção, use “Redefinir permissões”. Depois recarregue a página e, no aviso, escolha “Permitir”.';
+  if (st === 'granted' || st === 'prompt') return 'O sistema do celular bloqueou o microfone para o navegador. Xiaomi: Configurações › Apps › Gerenciar apps › Chrome › Permissões do app › Microfone › “Permitir somente durante o uso”. iPhone: Ajustes › Safari › Microfone › Permitir. Depois feche e abra o navegador.';
+  return 'O microfone foi negado. No aviso, escolha “Permitir” (não “Somente desta vez”). Se o aviso não aparecer: no navegador, ícone à esquerda do endereço › Permissões › Microfone › Permitir; no sistema (Xiaomi), Configurações › Apps › Gerenciar apps › Chrome › Permissões do app › Microfone › Permitir. Depois recarregue a página.';
+}
 const rec = { on: false, stream: null, node: null, an: null, chunks: [], clips: 0, t0: 0, raf: 0, wake: null, finish: null, nch: 1 };
 async function startRec() {
   const ac = ensureCtx(); await ac.resume();
@@ -846,12 +865,7 @@ async function startRec() {
     stream = await navigator.mediaDevices.getUserMedia({ audio: { echoCancellation: false, noiseSuppression: false, autoGainControl: false, channelCount: { ideal: nch } } });
     rec.keep = stream; rec.keepN = nch;
   } catch (e) {
-    const nm = e && e.name;
-    const msg = nm === 'NotAllowedError' || nm === 'SecurityError'
-      ? 'O microfone foi negado. No aviso de permissão, escolha “Permitir” ou “Permitir ao usar o app”, e não “Somente desta vez”. Se o aviso não aparecer, libere em dois lugares: (1) no navegador, toque no ícone à esquerda do endereço › Permissões › Microfone › Permitir; (2) no sistema — Xiaomi: Configurações › Apps › Gerenciar apps › Chrome › Permissões do app › Microfone › Permitir (não “Perguntar sempre”); iPhone: Ajustes › Safari › Microfone › Permitir. Depois recarregue a página.'
-      : nm === 'NotFoundError' ? 'Nenhum microfone foi encontrado neste aparelho.'
-      : nm === 'NotReadableError' || nm === 'AbortError' ? 'O microfone está ocupado por outro app (ligação, gravador, vídeo). Feche o outro app e tente de novo.'
-      : 'Não foi possível abrir o microfone (' + (nm || 'erro') + ').';
+    const msg = await micErrorMessage(e);
     $('#inputInfo').textContent = msg;
     setStatus(msg, true); return;
   }
