@@ -1,5 +1,5 @@
 /* Gravador de Bolso — funciona sem internet depois da primeira visita */
-const CACHE = 'gravador-de-bolso-v3';
+const CACHE = 'gravador-de-bolso-v4';
 const SHELL = ['./', './index.html', './manifest.webmanifest', './lame.min.js',
   './icon-192.png', './icon-512.png', './icon-maskable-512.png', './apple-touch-icon.png'];
 self.addEventListener('install', e => {
@@ -13,6 +13,8 @@ self.addEventListener('activate', e => {
 self.addEventListener('fetch', e => {
   const r = e.request;
   if (r.method !== 'GET') return;
+  // a versão Lite, em /lite/, cuida de si mesma
+  if (new URL(r.url).pathname.startsWith(new URL('./lite/', self.registration.scope).pathname)) return;
   if (r.mode === 'navigate') {
     // página: tenta a rede (para receber atualizações) e cai no que está guardado
     e.respondWith(fetch(r).then(res => {
