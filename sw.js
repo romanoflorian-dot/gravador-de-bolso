@@ -1,5 +1,5 @@
 /* Gravador de Bolso — funciona sem internet depois da primeira visita */
-const CACHE = 'gravador-de-bolso-v4';
+const CACHE = 'gravador-de-bolso-v5';
 const SHELL = ['./', './index.html', './manifest.webmanifest', './lame.min.js',
   './icon-192.png', './icon-512.png', './icon-maskable-512.png', './apple-touch-icon.png'];
 self.addEventListener('install', e => {

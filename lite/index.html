@@ -840,13 +840,17 @@ const rec = { on: false, stream: null, node: null, an: null, chunks: [], clips: 
 async function startRec() {
   const ac = ensureCtx(); await ac.resume();
   const nch = $('#chStereo').checked ? 2 : 1;
-  let stream;
-  try {
+  // reaproveita o microfone já aberto: evita um novo pedido de permissão a cada tomada
+  const live = rec.keep && rec.keepN === nch && rec.keep.getAudioTracks().length && rec.keep.getAudioTracks().every(t => t.readyState === 'live');
+  let stream = live ? rec.keep : null;
+  if (!stream) try {
+    if (rec.keep) { rec.keep.getTracks().forEach(t => t.stop()); rec.keep = null; }
     stream = await navigator.mediaDevices.getUserMedia({ audio: { echoCancellation: false, noiseSuppression: false, autoGainControl: false, channelCount: { ideal: nch } } });
+    rec.keep = stream; rec.keepN = nch;
   } catch (e) {
     const nm = e && e.name;
     const msg = nm === 'NotAllowedError' || nm === 'SecurityError'
-      ? 'O microfone foi negado. Libere em dois lugares: (1) no navegador, toque no ícone à esquerda do endereço › Permissões › Microfone › Permitir; (2) no sistema — Xiaomi: Configurações › Apps › Gerenciar apps › Chrome › Permissões do app › Microfone › Permitir; iPhone: Ajustes › Safari › Microfone › Permitir. Depois recarregue a página.'
+      ? 'O microfone foi negado. No aviso de permissão, escolha “Permitir” ou “Permitir ao usar o app”, e não “Somente desta vez”. Se o aviso não aparecer, libere em dois lugares: (1) no navegador, toque no ícone à esquerda do endereço › Permissões › Microfone › Permitir; (2) no sistema — Xiaomi: Configurações › Apps › Gerenciar apps › Chrome › Permissões do app › Microfone › Permitir (não “Perguntar sempre”); iPhone: Ajustes › Safari › Microfone › Permitir. Depois recarregue a página.'
       : nm === 'NotFoundError' ? 'Nenhum microfone foi encontrado neste aparelho.'
       : nm === 'NotReadableError' || nm === 'AbortError' ? 'O microfone está ocupado por outro app (ligação, gravador, vídeo). Feche o outro app e tente de novo.'
       : 'Não foi possível abrir o microfone (' + (nm || 'erro') + ').';
@@ -893,7 +897,6 @@ async function stopRec() {
   const ac = ctx; rec.on = false; cancelAnimationFrame(rec.raf);
   if (rec.node && rec.node.port) { await new Promise(res => { rec.finish = res; rec.node.port.postMessage('stop'); setTimeout(res, 800); }); }
   try { rec.src.disconnect(); rec.node.disconnect(); rec.sink.disconnect(); } catch (_) {}
-  rec.stream.getTracks().forEach(t => t.stop());
   if (rec.wake) { try { await rec.wake.release(); } catch (_) {} rec.wake = null; }
   $('#recBtn').classList.remove('on'); $('#recBtn').setAttribute('aria-label', 'Gravar');
   meterState.peak = -90; meterState.hold = -90; drawMeter(-90);
@@ -908,6 +911,10 @@ async function stopRec() {
   addTake({ name: 'Tomada ' + n + ' · ' + hh + 'h' + mm, sr: ac.sampleRate, chs, recorded: true });
   setStatus(rec.clips > 0 ? 'A gravação saturou ' + rec.clips + ' vezes. A reconstrução de picos foi ligada.' : 'Gravação pronta.');
 }
+// libera o microfone quando o app sai da tela (o próximo toque no botão pede de novo)
+function releaseMic() { if (rec.keep && !rec.on) { rec.keep.getTracks().forEach(t => t.stop()); rec.keep = null; } }
+document.addEventListener('visibilitychange', () => { if (document.hidden) releaseMic(); });
+window.addEventListener('pagehide', releaseMic);
 $('#recBtn').onclick = async () => {
   if (!canRecord) {
     $('#modeNote').hidden = false; $('#modeNote').classList.remove('flash'); void $('#modeNote').offsetWidth; $('#modeNote').classList.add('flash');
