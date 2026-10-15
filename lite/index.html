@@ -143,7 +143,8 @@ canvas{display:block;width:100%}
 .mini.wide{width:auto;max-width:100%;font-family:var(--f-body)}
 .lite{color:var(--accent)}
 .wavefoot{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap}
-.transport{gap:8px}
+.ctl{display:flex;flex-wrap:wrap;gap:8px}
+@media (max-width:460px){.ctl{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:6px}.ctl .btn{padding:9px 6px;font-size:13px;justify-content:center;text-align:center;line-height:1.15}}
 .tbtn svg{display:block}
 .tbtn .ic{display:inline-flex}
 footer{font-size:12.5px;color:var(--ink-3);text-align:left;display:flex;flex-direction:column;gap:6px;border-top:1px solid var(--line);padding-top:14px}
@@ -206,21 +207,17 @@ footer .credit{font-size:13.5px;color:var(--ink-2);font-weight:600}
     <h2 id="h2s"><span class="num">2</span>Ouvir, cortar e tratar</h2>
     <div class="chips" id="diag" hidden></div>
     <div class="screen"><canvas id="wave" aria-label="Forma de onda; arraste para mover o início ou o fim do corte"></canvas></div>
-    <div class="wavefoot">
-      <span class="summary" id="durLabel">Duração 0:00,0</span>
-      <div class="row transport">
-        <button class="btn primary tbtn" id="tpPlay" aria-label="Tocar"><span class="ic"></span><span class="tl">Tocar</span></button>
-        <button class="btn tbtn" id="tpStop" aria-label="Parar"><svg viewBox="0 0 16 16" width="14" height="14" aria-hidden="true"><rect x="3" y="3" width="10" height="10" rx="1" fill="currentColor"/></svg><span>Parar</span></button>
-      </div>
+    <div class="wavefoot"><span class="summary" id="durLabel">Duração 0:00,0</span></div>
+    <div class="ctl">
+      <button class="btn primary tbtn" id="tpPlay" aria-label="Tocar"><span class="ic"></span><span class="tl">Tocar</span></button>
+      <button class="btn tbtn" id="tpStop" aria-label="Parar"><svg viewBox="0 0 16 16" width="14" height="14" aria-hidden="true"><rect x="3" y="3" width="10" height="10" rx="1" fill="currentColor"/></svg><span>Parar</span></button>
+      <button class="btn accent" id="autoTrim" disabled>Cortar</button>
+      <button class="btn" id="resetTrim">Desfazer corte</button>
     </div>
     <div class="trimrow">
       <div class="row">
         <label class="field" for="trimA">Início (s)<input type="number" id="trimA" min="0" step="0.1" value="0"></label>
         <label class="field" for="trimB">Fim (s)<input type="number" id="trimB" min="0" step="0.1" value="0"></label>
-      </div>
-      <div class="row">
-        <button class="btn accent" id="autoTrim" disabled>Cortar</button>
-        <button class="btn" id="resetTrim">Desfazer corte</button>
       </div>
     </div>
     <div class="row" hidden>
@@ -271,7 +268,7 @@ footer .credit{font-size:13.5px;color:var(--ink-2);font-weight:600}
       <button class="btn" id="edSelAll">Selecionar tudo</button>
       <button class="btn" id="edUndo" disabled>Desfazer</button>
     </div>
-    <p class="sub" style="margin:0">Só as operações dos estúdios de música concreta da época dos gravadores de rolo (Schaeffer, Henry, GRM, anos 1950).</p>
+    <p class="sub" style="margin:0">Operações tradicionais dos estúdios de música concreta da época dos gravadores de rolo.</p>
     <div class="tools">
       <fieldset class="tool"><legend>Tesoura e fita adesiva</legend>
         <div class="row">
@@ -299,7 +296,7 @@ footer .credit{font-size:13.5px;color:var(--ink-2);font-weight:600}
           </select></div>
         <div class="sub">Como na fita, a altura e a duração mudam juntas.</div>
       </fieldset>
-      <fieldset class="tool"><legend>Mixagem</legend>
+      <fieldset class="tool"><legend>Overdub</legend>
         <div class="row"><button class="btn sm" data-op="mix">Sobrepor o trecho copiado</button></div>
         <div class="sub">Toca a fita copiada junto com a outra, a partir do cursor.</div>
       </fieldset>
@@ -673,6 +670,7 @@ function addTake(t, select = true) {
 }
 function renderTakes() {
   const box = $('#takes'); box.innerHTML = '';
+  if (!takes.length) { const m = document.createElement('div'); m.className = 'sub'; m.textContent = 'Nenhuma tomada ainda. Grave ou abra um arquivo.'; box.appendChild(m); }
   for (const t of takes) {
     const b = document.createElement('button'); b.className = 'take'; b.type = 'button';
     b.setAttribute('aria-current', cur === t ? 'true' : 'false');
@@ -1268,7 +1266,7 @@ if ('serviceWorker' in navigator && /^https?:$/.test(location.protocol) && !isCl
 })();
 setMode();
 drawMeter(-90);
-addTake(makeExample());
+renderTakes(); drawWave();
 updateMp3Buttons();
 window.addEventListener('load', () => { setMode(); updateMp3Buttons(); drawWave(); drawMeter(-90); });
 if (document.fonts && document.fonts.ready) document.fonts.ready.then(() => { drawWave(); drawMeter(-90); });
