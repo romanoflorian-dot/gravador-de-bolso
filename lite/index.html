@@ -197,6 +197,54 @@ details.tips{background:transparent;border:1px solid #000;border-radius:16px}
 #abertura svg{width:150px;height:186px}
 #abertura.sai{opacity:0;pointer-events:none}
 footer{text-align:center;border-top:1px solid #000}
+
+/* texto centralizado, botões e campos com a mesma altura, números em negrito */
+.wrap{text-align:center}
+.row{justify-content:center}
+.mod h2{justify-content:center}
+.sub,.status,.summary,.or,.field,.tag,.mode{text-align:center}
+p.sub{margin:0}
+details.tips summary{text-align:center}
+details.tips ul{list-style:none;padding:0;margin:12px auto 2px;align-items:center;text-align:center}
+.mode{border:1px solid #000;border-radius:12px;padding:8px 12px}
+#installBtn{align-self:center!important}
+.btn{justify-content:center;text-align:center;min-height:46px}
+.recrow{grid-template-columns:minmax(0,1fr)}
+.recside{align-items:center;width:100%}
+.recside>.row{justify-content:center!important;flex-direction:column;gap:10px}
+.recside .screen{align-self:stretch}
+.lamp{justify-content:center}
+.seg span{min-height:44px;display:flex;align-items:center}
+.drop{flex-direction:column;justify-content:center;align-items:center}
+.take{flex-direction:column;align-items:center;justify-content:center;text-align:center}
+.take .t{flex:none}
+.wavefoot{justify-content:center}
+.ctl{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:6px}
+.ctl .btn{padding:6px 4px;line-height:1.15}
+.trimrow{display:block}
+.trimrow .row{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+.field input,.field select{height:46px;text-align:center;text-align-last:center}
+.field input[type=number]{width:100%;font-weight:700;font-size:16px}
+.studio-open,.studio-close{align-self:center}
+.studio-close{border-style:dashed}
+.tools{grid-template-columns:minmax(0,1fr);gap:12px}
+.tool{padding:10px 12px 14px;gap:10px;text-align:center}
+.tool legend{margin:0 auto;padding:0 8px}
+.g{display:grid;gap:8px}
+.g1{grid-template-columns:minmax(0,1fr)}
+.g2{grid-template-columns:repeat(2,minmax(0,1fr))}
+.g3{grid-template-columns:repeat(3,minmax(0,1fr))}
+.g21{grid-template-columns:minmax(0,2fr) minmax(0,1fr)}
+.g .btn{width:100%;padding:6px 4px;font-size:12.5px;line-height:1.15;overflow-wrap:anywhere}
+.param{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1px;height:46px;min-width:0;padding:2px 4px;border:1px solid #000;border-radius:12px;background:#fff;cursor:text}
+.param input{width:100%;border:0;margin:0;padding:0;background:transparent;color:#000;font:700 16px/1.1 var(--f-body);text-align:center;-moz-appearance:textfield;appearance:textfield}
+.param input::-webkit-outer-spin-button,.param input::-webkit-inner-spin-button{-webkit-appearance:none;margin:0}
+.param input:focus{outline:none}
+.param:focus-within{outline:2px solid #000;outline-offset:2px}
+.param span{font-size:10.5px;line-height:1.1;letter-spacing:.03em}
+.sel{width:100%;height:46px;padding:0 30px;border:1px solid #000;border-radius:12px;color:#000;font:400 13px var(--f-body);text-align:center;text-align-last:center;-webkit-appearance:none;appearance:none;background:#fff url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath d='M2 4l4 4 4-4' fill='none' stroke='%23000' stroke-width='1.6'/%3E%3C/svg%3E") no-repeat right 12px center}
+.sel:focus-visible{outline:2px solid #000;outline-offset:2px}
+@media (max-width:350px){.g .btn,.ctl .btn,.exrow .btn{font-size:11.5px;padding:4px 3px;letter-spacing:-.02em}}
 </style>
 </head>
 <body>
@@ -300,81 +348,106 @@ footer{text-align:center;border-top:1px solid #000}
   </section>
 
   <section class="mod" id="studio" hidden aria-labelledby="hst">
-    <div class="row" style="justify-content:space-between">
-      <h2 id="hst"><span class="num">+</span>Estúdio de música concreta</h2>
-      <button class="btn" id="stClose">Fechar estúdio</button>
-    </div>
-    <p class="sub" style="margin:0">Arraste na onda para selecionar um trecho; toque sem arrastar para pôr o cursor (onde o colar e o inserir acontecem). Sem seleção, as operações valem para o som inteiro.</p>
+    <h2 id="hst"><span class="num">+</span>Estúdio de música concreta</h2>
+    <button class="btn studio-close" id="stClose">Fechar estúdio</button>
+    <p class="sub">Arraste na onda para selecionar um trecho; toque sem arrastar para pôr o cursor (onde o colar e o inserir acontecem). Sem seleção, as operações valem para o som inteiro.</p>
     <div class="screen"><canvas id="edWave" aria-label="Onda do estúdio; arraste para selecionar"></canvas></div>
     <div class="summary" id="edSel"></div>
     <div class="status" id="edStatus" role="status" aria-live="polite"></div>
-    <div class="row">
+    <div class="g g3">
       <button class="btn primary" id="edPlay">Ouvir seleção</button>
       <button class="btn" id="edPlayAll">Ouvir tudo</button>
       <button class="btn" id="edStop" disabled>Parar</button>
+    </div>
+    <div class="g g2">
       <button class="btn" id="edSelAll">Selecionar tudo</button>
       <button class="btn" id="edUndo" disabled>Desfazer</button>
     </div>
-    <p class="sub" style="margin:0">Operações tradicionais dos estúdios de música concreta da época dos gravadores de rolo.</p>
+    <p class="sub">Operações tradicionais dos estúdios de música concreta da época dos gravadores de rolo.</p>
     <div class="tools">
       <fieldset class="tool"><legend>Tesoura e fita adesiva</legend>
-        <div class="row">
-          <button class="btn sm" data-op="cut">Cortar</button>
-          <button class="btn sm" data-op="copy">Copiar</button>
-          <button class="btn sm" data-op="paste">Emendar (colar)</button>
-          <button class="btn sm" data-op="del">Apagar</button>
-          <button class="btn sm" data-op="crop">Isolar trecho</button>
+        <div class="g g3">
+          <button class="btn" data-op="cut">Cortar</button>
+          <button class="btn" data-op="copy">Copiar</button>
+          <button class="btn" data-op="del">Apagar</button>
         </div>
-        <div class="row"><button class="btn sm" data-op="insil">Emendar fita em branco</button><input class="mini" type="number" id="edSilS" min="0.1" max="120" step="0.5" value="2" aria-label="Segundos de fita em branco"><span class="sub">s no cursor</span></div>
-        <div class="sub">Cortar o ataque de um som (a “cloche coupée”) é selecionar o começo e apagar.</div>
+        <div class="g g2">
+          <button class="btn" data-op="paste">Emendar (colar)</button>
+          <button class="btn" data-op="crop">Isolar trecho</button>
+        </div>
+        <div class="g g21">
+          <button class="btn" data-op="insil">Emendar fita em branco</button>
+          <label class="param"><input type="number" id="edSilS" min="0.1" max="120" step="0.5" value="2" aria-label="Segundos de fita em branco"><span>segundos</span></label>
+        </div>
+        <p class="sub">A fita em branco entra no cursor. Cortar o ataque de um som (a “cloche coupée”) é selecionar o começo e apagar.</p>
       </fieldset>
       <fieldset class="tool"><legend>Fita em anel (loop)</legend>
-        <div class="row"><button class="btn sm" data-op="loop">Repetir</button><input class="mini" type="number" id="edLoopN" min="2" max="64" value="4" aria-label="Número de voltas"><span class="sub">voltas</span></div>
+        <div class="g g2">
+          <button class="btn" data-op="loop">Repetir</button>
+          <label class="param"><input type="number" id="edLoopN" min="2" max="64" value="4" aria-label="Número de voltas"><span>voltas</span></label>
+        </div>
       </fieldset>
       <fieldset class="tool"><legend>Fita ao contrário</legend>
-        <div class="row"><button class="btn sm" data-op="rev">Inverter</button></div>
+        <div class="g g1">
+          <button class="btn" data-op="rev">Inverter</button>
+        </div>
       </fieldset>
       <fieldset class="tool"><legend>Velocidade (fonógeno)</legend>
-        <div class="row"><button class="btn sm" data-op="speed">Mudar velocidade</button>
-          <select class="mini wide" id="edSpeed" aria-label="Velocidade">
+        <div class="g g1">
+          <select class="sel" id="edSpeed" aria-label="Velocidade">
             <option value="0.25">¼ (2 oitavas abaixo)</option><option value="0.5" selected>½ (1 oitava abaixo)</option>
             <option value="0.749">quarta abaixo</option><option value="1.335">quarta acima</option>
             <option value="2">2× (1 oitava acima)</option><option value="4">4× (2 oitavas acima)</option>
-          </select></div>
-        <div class="sub">Como na fita, a altura e a duração mudam juntas.</div>
+          </select>
+        </div>
+        <div class="g g1">
+          <button class="btn" data-op="speed">Mudar velocidade</button>
+        </div>
+        <p class="sub">Como na fita, a altura e a duração mudam juntas.</p>
       </fieldset>
       <fieldset class="tool"><legend>Overdub</legend>
-        <div class="row"><button class="btn sm" data-op="mix">Sobrepor o trecho copiado</button></div>
-        <div class="sub">Toca a fita copiada junto com a outra, a partir do cursor.</div>
+        <div class="g g1">
+          <button class="btn" data-op="mix">Sobrepor o trecho copiado</button>
+        </div>
+        <p class="sub">Toca a fita copiada junto com a outra, a partir do cursor.</p>
       </fieldset>
       <fieldset class="tool"><legend>Potenciômetro</legend>
-        <div class="row"><button class="btn sm" data-op="fadein">Fade in</button><button class="btn sm" data-op="fadeout">Fade out</button><button class="btn sm" data-op="mute">Fechar (silenciar)</button></div>
-        <div class="row"><button class="btn sm" data-op="gain">Volume</button><input class="mini" type="number" id="edGain" min="-60" max="24" step="1" value="-6" aria-label="Volume em dB"><span class="sub">dB</span></div>
-        <div class="sub">Sem seleção, os fades usam os 2 s das pontas.</div>
+        <div class="g g3">
+          <button class="btn" data-op="fadein">Fade in</button>
+          <button class="btn" data-op="fadeout">Fade out</button>
+          <button class="btn" data-op="mute">Fechar (silenciar)</button>
+        </div>
+        <div class="g g2">
+          <button class="btn" data-op="gain">Volume</button>
+          <label class="param"><input type="number" id="edGain" min="-60" max="24" step="1" value="-6" aria-label="Volume em dB"><span>dB</span></label>
+        </div>
+        <p class="sub">Sem seleção, os fades usam os 2 s das pontas.</p>
       </fieldset>
       <fieldset class="tool"><legend>Eco de fita</legend>
-        <div class="row"><button class="btn sm" data-op="echo">Eco</button>
-          <input class="mini" type="number" id="edDelay" min="20" max="3000" step="10" value="350" aria-label="Distância entre as cabeças, em ms"><span class="sub">ms</span>
-          <input class="mini" type="number" id="edFb" min="0" max="95" step="5" value="45" aria-label="Realimentação em porcentagem"><span class="sub">% retorno</span></div>
-        <div class="sub">Gravar e ler a mesma fita com cabeças afastadas. A cauda continua depois da seleção.</div>
+        <div class="g g3">
+          <button class="btn" data-op="echo">Eco</button>
+          <label class="param"><input type="number" id="edDelay" min="20" max="3000" step="10" value="350" aria-label="Distância entre as cabeças, em ms"><span>ms</span></label>
+          <label class="param"><input type="number" id="edFb" min="0" max="95" step="5" value="45" aria-label="Retorno em porcentagem"><span>% retorno</span></label>
+        </div>
+        <p class="sub">Gravar e ler a mesma fita com cabeças afastadas. As repetições continuam depois do fim da seleção, somadas ao som que vem a seguir.</p>
       </fieldset>
       <fieldset class="tool"><legend>Filtro</legend>
-        <div class="row">
-          <select class="mini wide" id="edFilt" aria-label="Tipo de filtro">
+        <div class="g g1">
+          <select class="sel" id="edFilt" aria-label="Tipo de filtro">
             <option value="lowpass">Passa-baixas (abafa)</option><option value="highpass">Passa-altas (afina)</option>
             <option value="bandpass">Passa-faixa (som de rádio, telefone)</option>
           </select>
         </div>
-        <div class="row">
-          <input class="mini" type="number" id="edFreq" min="20" max="20000" step="10" value="1000" aria-label="Frequência em Hz"><span class="sub">Hz</span>
-          <button class="btn sm" data-op="filter">Aplicar filtro</button>
+        <div class="g g2">
+          <button class="btn" data-op="filter">Aplicar filtro</button>
+          <label class="param"><input type="number" id="edFreq" min="20" max="20000" step="10" value="1000" aria-label="Frequência em Hz"><span>Hz</span></label>
         </div>
       </fieldset>
     </div>
-    <div class="row">
+    <div class="g g1">
       <button class="btn accent" id="edCommit">Guardar como nova tomada</button>
-      <span class="sub">Ela entra no passo 2 para tratar e exportar.</span>
     </div>
+    <p class="sub">Ela entra no passo 2 para tratar e exportar.</p>
   </section>
 
   <section class="mod" aria-labelledby="h3s">
