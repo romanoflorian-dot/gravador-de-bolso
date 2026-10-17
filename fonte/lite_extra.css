@@ -1,0 +1,48 @@
+
+/* texto centralizado, botões e campos com a mesma altura, números em negrito */
+.wrap{text-align:center}
+.row{justify-content:center}
+.mod h2{justify-content:center}
+.sub,.status,.summary,.or,.field,.tag,.mode{text-align:center}
+p.sub{margin:0}
+details.tips summary{text-align:center}
+details.tips ul{list-style:none;padding:0;margin:12px auto 2px;align-items:center;text-align:center}
+.mode{border:1px solid #000;border-radius:12px;padding:8px 12px}
+#installBtn{align-self:center!important}
+.btn{justify-content:center;text-align:center;min-height:46px}
+.recrow{grid-template-columns:minmax(0,1fr)}
+.recside{align-items:center;width:100%}
+.recside>.row{justify-content:center!important;flex-direction:column;gap:10px}
+.recside .screen{align-self:stretch}
+.lamp{justify-content:center}
+.seg span{min-height:44px;display:flex;align-items:center}
+.drop{flex-direction:column;justify-content:center;align-items:center}
+.take{flex-direction:column;align-items:center;justify-content:center;text-align:center}
+.take .t{flex:none}
+.wavefoot{justify-content:center}
+.ctl{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:6px}
+.ctl .btn{padding:6px 4px;line-height:1.15}
+.trimrow{display:block}
+.trimrow .row{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+.field input,.field select{height:46px;text-align:center;text-align-last:center}
+.field input[type=number]{width:100%;font-weight:700;font-size:16px}
+.studio-open,.studio-close{align-self:center}
+.studio-close{border-style:dashed}
+.tools{grid-template-columns:minmax(0,1fr);gap:12px}
+.tool{padding:10px 12px 14px;gap:10px;text-align:center}
+.tool legend{margin:0 auto;padding:0 8px}
+.g{display:grid;gap:8px}
+.g1{grid-template-columns:minmax(0,1fr)}
+.g2{grid-template-columns:repeat(2,minmax(0,1fr))}
+.g3{grid-template-columns:repeat(3,minmax(0,1fr))}
+.g21{grid-template-columns:minmax(0,2fr) minmax(0,1fr)}
+.g .btn{width:100%;padding:6px 4px;font-size:12.5px;line-height:1.15;overflow-wrap:anywhere}
+.param{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1px;height:46px;min-width:0;padding:2px 4px;border:1px solid #000;border-radius:12px;background:#fff;cursor:text}
+.param input{width:100%;border:0;margin:0;padding:0;background:transparent;color:#000;font:700 16px/1.1 var(--f-body);text-align:center;-moz-appearance:textfield;appearance:textfield}
+.param input::-webkit-outer-spin-button,.param input::-webkit-inner-spin-button{-webkit-appearance:none;margin:0}
+.param input:focus{outline:none}
+.param:focus-within{outline:2px solid #000;outline-offset:2px}
+.param span{font-size:10.5px;line-height:1.1;letter-spacing:.03em}
+.sel{width:100%;height:46px;padding:0 30px;border:1px solid #000;border-radius:12px;color:#000;font:400 13px var(--f-body);text-align:center;text-align-last:center;-webkit-appearance:none;appearance:none;background:#fff url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath d='M2 4l4 4 4-4' fill='none' stroke='%23000' stroke-width='1.6'/%3E%3C/svg%3E") no-repeat right 12px center}
+.sel:focus-visible{outline:2px solid #000;outline-offset:2px}
+@media (max-width:350px){.g .btn,.ctl .btn,.exrow .btn{font-size:11.5px;padding:4px 3px;letter-spacing:-.02em}}

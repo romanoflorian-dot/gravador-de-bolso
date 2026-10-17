@@ -1,0 +1,102 @@
+  <section class="mod" id="studio" hidden aria-labelledby="hst">
+    <h2 id="hst"><span class="num">+</span>Estúdio de música concreta</h2>
+    <button class="btn studio-close" id="stClose">Fechar estúdio</button>
+    <p class="sub">Arraste na onda para selecionar um trecho; toque sem arrastar para pôr o cursor (onde o colar e o inserir acontecem). Sem seleção, as operações valem para o som inteiro.</p>
+    <div class="screen"><canvas id="edWave" aria-label="Onda do estúdio; arraste para selecionar"></canvas></div>
+    <div class="summary" id="edSel"></div>
+    <div class="status" id="edStatus" role="status" aria-live="polite"></div>
+    <div class="g g3">
+      <button class="btn primary" id="edPlay">Ouvir seleção</button>
+      <button class="btn" id="edPlayAll">Ouvir tudo</button>
+      <button class="btn" id="edStop" disabled>Parar</button>
+    </div>
+    <div class="g g2">
+      <button class="btn" id="edSelAll">Selecionar tudo</button>
+      <button class="btn" id="edUndo" disabled>Desfazer</button>
+    </div>
+    <p class="sub">Operações tradicionais dos estúdios de música concreta da época dos gravadores de rolo.</p>
+    <div class="tools">
+      <fieldset class="tool"><legend>Tesoura e fita adesiva</legend>
+        <div class="g g3">
+          <button class="btn" data-op="cut">Cortar</button>
+          <button class="btn" data-op="copy">Copiar</button>
+          <button class="btn" data-op="del">Apagar</button>
+        </div>
+        <div class="g g2">
+          <button class="btn" data-op="paste">Emendar (colar)</button>
+          <button class="btn" data-op="crop">Isolar trecho</button>
+        </div>
+        <div class="g g21">
+          <button class="btn" data-op="insil">Emendar fita em branco</button>
+          <label class="param"><input type="number" id="edSilS" min="0.1" max="120" step="0.5" value="2" aria-label="Segundos de fita em branco"><span>segundos</span></label>
+        </div>
+        <p class="sub">A fita em branco entra no cursor. Cortar o ataque de um som (a “cloche coupée”) é selecionar o começo e apagar.</p>
+      </fieldset>
+      <fieldset class="tool"><legend>Fita em anel (loop)</legend>
+        <div class="g g2">
+          <button class="btn" data-op="loop">Repetir</button>
+          <label class="param"><input type="number" id="edLoopN" min="2" max="64" value="4" aria-label="Número de voltas"><span>voltas</span></label>
+        </div>
+      </fieldset>
+      <fieldset class="tool"><legend>Fita ao contrário</legend>
+        <div class="g g1">
+          <button class="btn" data-op="rev">Inverter</button>
+        </div>
+      </fieldset>
+      <fieldset class="tool"><legend>Velocidade (fonógeno)</legend>
+        <div class="g g1">
+          <select class="sel" id="edSpeed" aria-label="Velocidade">
+            <option value="0.25">¼ (2 oitavas abaixo)</option><option value="0.5" selected>½ (1 oitava abaixo)</option>
+            <option value="0.749">quarta abaixo</option><option value="1.335">quarta acima</option>
+            <option value="2">2× (1 oitava acima)</option><option value="4">4× (2 oitavas acima)</option>
+          </select>
+        </div>
+        <div class="g g1">
+          <button class="btn" data-op="speed">Mudar velocidade</button>
+        </div>
+        <p class="sub">Como na fita, a altura e a duração mudam juntas.</p>
+      </fieldset>
+      <fieldset class="tool"><legend>Overdub</legend>
+        <div class="g g1">
+          <button class="btn" data-op="mix">Sobrepor o trecho copiado</button>
+        </div>
+        <p class="sub">Toca a fita copiada junto com a outra, a partir do cursor.</p>
+      </fieldset>
+      <fieldset class="tool"><legend>Potenciômetro</legend>
+        <div class="g g3">
+          <button class="btn" data-op="fadein">Fade in</button>
+          <button class="btn" data-op="fadeout">Fade out</button>
+          <button class="btn" data-op="mute">Fechar (silenciar)</button>
+        </div>
+        <div class="g g2">
+          <button class="btn" data-op="gain">Volume</button>
+          <label class="param"><input type="number" id="edGain" min="-60" max="24" step="1" value="-6" aria-label="Volume em dB"><span>dB</span></label>
+        </div>
+        <p class="sub">Sem seleção, os fades usam os 2 s das pontas.</p>
+      </fieldset>
+      <fieldset class="tool"><legend>Eco de fita</legend>
+        <div class="g g3">
+          <button class="btn" data-op="echo">Eco</button>
+          <label class="param"><input type="number" id="edDelay" min="20" max="3000" step="10" value="350" aria-label="Distância entre as cabeças, em ms"><span>ms</span></label>
+          <label class="param"><input type="number" id="edFb" min="0" max="95" step="5" value="45" aria-label="Retorno em porcentagem"><span>% retorno</span></label>
+        </div>
+        <p class="sub">Gravar e ler a mesma fita com cabeças afastadas. As repetições continuam depois do fim da seleção, somadas ao som que vem a seguir.</p>
+      </fieldset>
+      <fieldset class="tool"><legend>Filtro</legend>
+        <div class="g g1">
+          <select class="sel" id="edFilt" aria-label="Tipo de filtro">
+            <option value="lowpass">Passa-baixas (abafa)</option><option value="highpass">Passa-altas (afina)</option>
+            <option value="bandpass">Passa-faixa (som de rádio, telefone)</option>
+          </select>
+        </div>
+        <div class="g g2">
+          <button class="btn" data-op="filter">Aplicar filtro</button>
+          <label class="param"><input type="number" id="edFreq" min="20" max="20000" step="10" value="1000" aria-label="Frequência em Hz"><span>Hz</span></label>
+        </div>
+      </fieldset>
+    </div>
+    <div class="g g1">
+      <button class="btn accent" id="edCommit">Guardar como nova tomada</button>
+    </div>
+    <p class="sub">Ela entra no passo 2 para tratar e exportar.</p>
+  </section>
