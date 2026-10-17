@@ -3,14 +3,14 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<meta name="theme-color" content="#151816">
+<meta name="theme-color" content="#ffffff">
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="icon" type="image/png" sizes="192x192" href="icon-192.png">
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
 <title>Gravador de Bolso Lite</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..100,400..800&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..100,400..800&family=IBM+Plex+Mono:wght@400;500;600&family=Special+Elite&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
 <style>
 /* Layout: a face de um gravador portátil — três módulos empilhados na ordem do trabalho (gravar → ajustar → exportar), coluna única de até 760px; o visor escuro (medidor e onda) é igual nos dois temas, como a tela de um aparelho */
 :root{
@@ -151,12 +151,50 @@ footer{font-size:12.5px;color:var(--ink-3);text-align:left;display:flex;flex-dir
 footer p{margin:0}
 footer .credit{font-size:13.5px;color:var(--ink-2);font-weight:600}
 .hl{font-weight:600;color:var(--ink)}
+
+/* visual preto e branco — sobrepõe os dois temas */
+:root,:root:not([data-theme="light"]),:root[data-theme="dark"]{
+  --bg:#ffffff; --panel:#ffffff; --ink:#000000; --ink-2:#000000; --ink-3:#000000; --line:#000000;
+  --accent:#000000; --accent-ink:#ffffff; --rec:#000000; --ok:#000000; --warn:#000000; --bad:#000000;
+  --screen:#000000; --screen-ink:#ffffff; --screen-dim:#ffffff; --screen-wave:#ffffff; --screen-off:#ffffff; --screen-cut:rgba(0,0,0,.6);
+  --m-low:#ffffff; --m-target:#ffffff; --m-hot:#ffffff; --m-clip:#ffffff;
+  --f-display:"American Typewriter","Special Elite","Courier New",serif;
+  --f-body:"Space Mono",ui-monospace,"SFMono-Regular",Menlo,Consolas,monospace;
+  --f-mono:"Space Mono",ui-monospace,"SFMono-Regular",Menlo,Consolas,monospace;
+  --r:16px; color-scheme:light;
+}
+header{align-items:center;text-align:center}
+h1{font-stretch:normal;font-weight:400;font-size:clamp(30px,8vw,40px);letter-spacing:.01em;text-align:center}
+.tag{text-align:center}
+.mod{background:transparent;border:none;border-radius:0;padding:6px 0}
+details.tips{background:transparent;border:1px solid #000;border-radius:16px}
+.mod h2{font-family:var(--f-body);font-stretch:normal;font-size:12px;letter-spacing:.18em}
+.btn{font:400 13px/1.2 var(--f-body);border-radius:12px;border:1px solid #000;background:#fff;color:#000;min-height:44px}
+.btn:hover{border-color:#000}
+.btn.primary{background:#000;color:#fff;border-color:#000;font-weight:700}
+.btn.accent{background:#fff;color:#000;border-color:#000;font-weight:700}
+.take{background:#fff;border:1px solid #000;border-radius:12px;min-height:46px;align-items:center}
+.take[aria-current="true"]{background:#000;color:#fff;border-color:#000;box-shadow:none}
+.take[aria-current="true"] .d{color:#fff}
+.field input,.field select,.mini{border:1px solid #000;border-radius:12px;background:#fff;color:#000}
+.screen{border-radius:12px}
+.drop{border:1.5px dashed #000;border-radius:16px}
+.seg{border-color:#000;border-radius:12px}
+.preset span,.tool{border-color:#000;border-radius:12px;background:#fff}
+.studio-open{border-radius:12px}
+.recrow{justify-items:center}
+.recbtn{width:112px;height:132px;border-radius:16px;border:2px solid #000;background:#fff;padding:4px;justify-self:center}
+.recbtn .ear{display:block;width:98px;height:120px}
+.recbtn.on{background:#000}
+.recbtn.on .ear{filter:invert(1)}
+.recbtn.on::after{border-radius:22px;border-color:#000}
+footer{text-align:center;border-top:1px solid #000}
 </style>
 </head>
 <body>
 <div class="wrap">
   <header>
-    <h1>Gravador de Bolso <span class="lite">Lite</span></h1>
+    <h1>Gravador de Bolso</h1>
     <p class="tag">Grave com o que estiver à mão, corte o manuseio, limpe o som e exporte em WAV ou MP3. Feito para trabalhos de arte sonora que não precisam de estúdio.</p>
     <p class="mode" id="modeNote" hidden></p>
     <button class="btn accent" id="installBtn" hidden style="align-self:flex-start">Instalar como app</button>
@@ -166,7 +204,7 @@ footer .credit{font-size:13.5px;color:var(--ink-2);font-weight:600}
     <summary>Antes de gravar</summary>
     <ul>
       <li><b>Aponte o microfone para a fonte.</b> No celular, o microfone fica na borda de baixo. Com rádio ou objeto, de frente, a uns 30 a 50 cm.</li>
-      <li><b>Ajuste a distância pelo medidor.</b> Os picos devem ficar na faixa laranja, entre −12 e −6 dB. Se a luz de saturação acender, afaste o aparelho.</li>
+      <li><b>Ajuste a distância pelo medidor.</b> Os picos devem ficar entre −12 e −6 dB no medidor. Se a luz de saturação acender, afaste o aparelho.</li>
       <li><b>Deixe 3 segundos parados no começo e no fim.</b> É ali que entra o barulho da mão no aparelho, e o app sugere o corte.</li>
       <li><b>Mantenha a tela acesa.</b> Em muitos celulares, travar a tela interrompe a gravação.</li>
       <li><b>Os automáticos do navegador já vêm desligados</b> (controle de ganho, redução de ruído e cancelamento de eco).</li>
@@ -177,7 +215,7 @@ footer .credit{font-size:13.5px;color:var(--ink-2);font-weight:600}
   <section class="mod" aria-labelledby="h1s">
     <h2 id="h1s"><span class="num">1</span>Gravar ou abrir</h2>
     <div class="recrow">
-      <button class="recbtn" id="recBtn" aria-label="Gravar"><span class="core"></span></button>
+      <button class="recbtn" id="recBtn" aria-label="Gravar"><svg class="ear" viewBox="0 0 100 124" aria-hidden="true"> <defs> <pattern id="hachura" width="3.2" height="3.2" patternUnits="userSpaceOnUse" patternTransform="rotate(38)"> <line x1="0" y1="0" x2="0" y2="3.2" stroke="#000000" stroke-width="0.9"></line> </pattern> <pattern id="hachura2" width="3.6" height="3.6" patternUnits="userSpaceOnUse" patternTransform="rotate(-46)"> <line x1="0" y1="0" x2="0" y2="3.6" stroke="#000000" stroke-width="0.8"></line> </pattern> <filter id="tremido" x="-10%" y="-10%" width="120%" height="120%"> <feTurbulence type="fractalNoise" baseFrequency="0.06" numOctaves="2" seed="9"></feTurbulence> <feDisplacementMap in="SourceGraphic" scale="2.2" xChannelSelector="R" yChannelSelector="G"></feDisplacementMap> </filter> </defs> <g filter="url(#tremido)" fill="none" stroke="#000000" stroke-linecap="round" stroke-linejoin="round"> <path d="M60 18 C 78 22, 88 40, 85 58 C 83 69, 77 77, 70 85 L 62 81 C 70 71, 76 61, 76 50 C 76 33, 66 22, 52 20 Z" fill="url(#hachura)" stroke="none"></path> <path d="M40 56 C 52 52, 60 60, 58 74 C 56 84, 46 88, 40 82 C 34 74, 34 62, 40 56 Z" fill="url(#hachura)" stroke="none"></path> <path d="M43 64 C 49 63, 53 69, 51 76 C 49 81, 44 81, 42 77 Z" fill="url(#hachura2)" stroke="none"></path> <path d="M38 98 C 37 106, 42 112, 50 112 C 46 108, 44 103, 45 97 Z" fill="url(#hachura2)" stroke="none"></path> <path d="M26 34 C 24 44, 25 56, 30 66 L 34 62 C 30 52, 30 42, 32 32 Z" fill="url(#hachura)" stroke="none" opacity="0.7"></path> <path d="M44 12 C 70 6, 88 26, 86 52 C 85 70, 74 80, 68 90 C 62 100, 64 110, 52 114 C 42 117, 36 108, 40 100 C 44 92, 40 86, 34 80 C 24 70, 20 54, 22 40 C 25 24, 32 14, 44 12 Z" stroke-width="1.8"></path> <path d="M40 22 C 62 14, 78 32, 76 52 C 75 66, 66 74, 60 84" stroke-width="1.3"></path> <path d="M48 34 C 60 32, 66 44, 62 56 C 59 64, 52 68, 50 76" stroke-width="1.4"></path> <path d="M52 40 C 46 42, 42 48, 44 54" stroke-width="1.1"></path> <path d="M44 62 C 40 66, 40 74, 46 78 C 50 80, 54 76, 52 70" stroke-width="1.3"></path> <path d="M36 66 C 32 70, 32 78, 38 80" stroke-width="1.5"></path> <path d="M58 88 C 54 92, 50 92, 47 90" stroke-width="1.1"></path> </g> </svg></button>
       <div class="recside">
         <div class="row" style="justify-content:space-between">
           <span class="timer" id="recTime">0:00,0</span>
@@ -190,7 +228,7 @@ footer .credit{font-size:13.5px;color:var(--ink-2);font-weight:600}
           </div>
         </div>
         <div class="screen"><canvas id="meter" aria-label="Medidor de nível de entrada, em dBFS"></canvas></div>
-        <div class="sub" id="inputInfo">Toque no botão vermelho para gravar. A faixa laranja do medidor é o nível ideal.</div>
+        <div class="sub" id="inputInfo">Toque no botão da orelha para gravar. O nível ideal fica entre −12 e −6 dB no medidor.</div>
       </div>
     </div>
     <div class="drop" id="drop">
@@ -374,7 +412,7 @@ function setMode() {
   else n.hidden = true;
   if (!rec.on) $('#recBtn').disabled = false;
   $('#recBtn').classList.toggle('blocked', !canRecord);
-  if (!canRecord) $('#inputInfo').textContent = 'O microfone está bloqueado neste modo de abertura. Toque no botão vermelho para ver o que fazer.';
+  if (!canRecord) $('#inputInfo').textContent = 'O microfone está bloqueado neste modo de abertura. Toque no botão da orelha para ver o que fazer.';
 }
 function micBlockedReason() {
   if (inClaude) return 'Na página publicada pelo Claude o microfone não é liberado. <span class="hl">Para gravar, abra o app pelo endereço https onde ele estiver hospedado.</span> Aqui dá para abrir arquivos, tratar e exportar (em .zip).';
@@ -758,7 +796,7 @@ function drawWave() {
     if (h0.end < dur - 0.05) { const x = h0.end / dur * w; g.beginPath(); g.moveTo(x + .5, 0); g.lineTo(x + .5, H); g.stroke(); }
     g.setLineDash([]);
   }
-  const acc = css('--accent');
+  const acc = css('--screen-ink');
   for (const x of [xa, xb]) { g.fillStyle = acc; g.fillRect(Math.round(x) - 1, 0, 2, H); g.fillRect(Math.round(x) - 6, 0, 12, 8); }
   if (playhead !== null) { const x = playhead / dur * w; g.fillStyle = css('--screen-ink'); g.fillRect(Math.round(x), 0, 1.5, H); }
   // régua de tempo
@@ -919,7 +957,7 @@ async function stopRec() {
   $('#recBtn').classList.remove('on'); $('#recBtn').setAttribute('aria-label', 'Gravar');
   meterState.peak = -90; meterState.hold = -90; drawMeter(-90);
   const nch = rec.chunks.length ? rec.chunks[0].length : rec.nch, total = rec.chunks.reduce((a, c) => a + c[0].length, 0);
-  if (total < ac.sampleRate * 0.5) { setStatus('Gravação curta demais.', true); $('#inputInfo').textContent = 'Toque no botão vermelho para gravar.'; return; }
+  if (total < ac.sampleRate * 0.5) { setStatus('Gravação curta demais.', true); $('#inputInfo').textContent = 'Toque no botão da orelha para gravar.'; return; }
   const chs = Array.from({ length: nch }, () => new Float32Array(total));
   let o = 0; for (const c of rec.chunks) { for (let k = 0; k < nch; k++) chs[k].set(c[k], o); o += c[0].length; }
   rec.chunks = [];
@@ -1109,10 +1147,10 @@ function drawEd() {
     ed.peaks = { w: W, mn, mx, scale: gp > 0 ? Math.min(1 / gp, 8) : 1 };
   }
   const P = ed.peaks, s = edSel(), xa = ed.a / dur * w, xb = ed.b / dur * w;
-  if (s) { g.fillStyle = css('--accent'); g.globalAlpha = .22; g.fillRect(xa, 0, xb - xa, H); g.globalAlpha = 1; }
+  if (s) { g.fillStyle = css('--screen-ink'); g.globalAlpha = .22; g.fillRect(xa, 0, xb - xa, H); g.globalAlpha = 1; }
   g.fillStyle = css('--screen-wave');
   for (let x = 0; x < P.w; x++) { const y1 = mid - P.mx[x] * P.scale * (mid - 4), y2 = mid - P.mn[x] * P.scale * (mid - 4); g.fillRect(x, y1, 1, Math.max(1, y2 - y1)); }
-  g.fillStyle = css('--accent');
+  g.fillStyle = css('--screen-ink');
   if (s) { g.fillRect(Math.round(xa) - 1, 0, 2, H); g.fillRect(Math.round(xb) - 1, 0, 2, H); }
   else { g.fillRect(Math.round(xa) - 1, 0, 2, H); g.beginPath(); g.moveTo(xa - 6, 0); g.lineTo(xa + 6, 0); g.lineTo(xa, 8); g.fill(); }
   if (ed.ph !== null) { g.fillStyle = css('--screen-ink'); g.fillRect(Math.round(ed.ph / dur * w), 0, 1.5, H); }
