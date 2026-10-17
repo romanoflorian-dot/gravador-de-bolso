@@ -155,9 +155,9 @@ footer .credit{font-size:13.5px;color:var(--ink-2);font-weight:600}
 /* visual preto e branco — sobrepõe os dois temas */
 :root,:root:not([data-theme="light"]),:root[data-theme="dark"]{
   --bg:#ffffff; --panel:#ffffff; --ink:#000000; --ink-2:#000000; --ink-3:#000000; --line:#000000;
-  --accent:#000000; --accent-ink:#ffffff; --rec:#000000; --ok:#000000; --warn:#000000; --bad:#000000;
+  --accent:#000000; --accent-ink:#ffffff; --rec:#000000; --ok:#000000; --warn:#000000; --bad:#d4281c;
   --screen:#000000; --screen-ink:#ffffff; --screen-dim:#ffffff; --screen-wave:#ffffff; --screen-off:#ffffff; --screen-cut:rgba(0,0,0,.6);
-  --m-low:#ffffff; --m-target:#ffffff; --m-hot:#ffffff; --m-clip:#ffffff;
+  --m-low:#6a6a6a; --m-target:#d0d0d0; --m-hot:#e5534b; --m-clip:#ff2d20;
   --f-display:"American Typewriter","Special Elite","Courier New",serif;
   --f-body:"Space Mono",ui-monospace,"SFMono-Regular",Menlo,Consolas,monospace;
   --f-mono:"Space Mono",ui-monospace,"SFMono-Regular",Menlo,Consolas,monospace;
@@ -185,14 +185,23 @@ details.tips{background:transparent;border:1px solid #000;border-radius:16px}
 .recrow{justify-items:center}
 .recbtn{width:112px;height:132px;border-radius:16px;border:2px solid #000;background:#fff;padding:4px;justify-self:center}
 .recbtn .ear{display:block;width:98px;height:120px}
-.recbtn.on{background:#000}
-.recbtn.on .ear{filter:invert(1)}
-.recbtn.on::after{border-radius:22px;border-color:#000}
+.recbtn.on::after{display:none}
+.nota{opacity:0;transform-box:fill-box;transform-origin:center}
+.recbtn.on .nota,#abertura .nota{animation:entra 1.6s ease-in infinite}
+.recbtn.on .n2,#abertura .n2{animation-delay:.8s}
+@keyframes entra{0%{opacity:0;transform:translate(0,0) scale(1) rotate(0)}15%{opacity:1}75%{opacity:1}100%{opacity:0;transform:translate(30px,52px) scale(.3) rotate(25deg)}}
+@media (prefers-reduced-motion:reduce){.recbtn.on .nota,#abertura .nota{animation:none;opacity:1}}
+.exrow{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
+.exrow .btn{justify-content:center;text-align:center;padding:10px 4px;line-height:1.15}
+#abertura{position:fixed;inset:0;z-index:999;background:#fff;display:grid;place-items:center;transition:opacity .45s ease}
+#abertura svg{width:150px;height:186px}
+#abertura.sai{opacity:0;pointer-events:none}
 footer{text-align:center;border-top:1px solid #000}
 </style>
 </head>
 <body>
 <div class="wrap">
+<div id="abertura" aria-hidden="true"><svg class="ear-ab" viewBox="0 0 100 124" aria-hidden="true"> <defs> <pattern id="hachuraS" width="3.2" height="3.2" patternUnits="userSpaceOnUse" patternTransform="rotate(38)"> <line x1="0" y1="0" x2="0" y2="3.2" stroke="#000000" stroke-width="0.9"></line> </pattern> <pattern id="hachuraS2" width="3.6" height="3.6" patternUnits="userSpaceOnUse" patternTransform="rotate(-46)"> <line x1="0" y1="0" x2="0" y2="3.6" stroke="#000000" stroke-width="0.8"></line> </pattern> <filter id="tremidoS" x="-10%" y="-10%" width="120%" height="120%"> <feTurbulence type="fractalNoise" baseFrequency="0.06" numOctaves="2" seed="9"></feTurbulence> <feDisplacementMap in="SourceGraphic" scale="2.2" xChannelSelector="R" yChannelSelector="G"></feDisplacementMap> </filter> </defs> <g filter="url(#tremidoS)" fill="none" stroke="#000000" stroke-linecap="round" stroke-linejoin="round"> <path d="M60 18 C 78 22, 88 40, 85 58 C 83 69, 77 77, 70 85 L 62 81 C 70 71, 76 61, 76 50 C 76 33, 66 22, 52 20 Z" fill="url(#hachuraS)" stroke="none"></path> <path d="M40 56 C 52 52, 60 60, 58 74 C 56 84, 46 88, 40 82 C 34 74, 34 62, 40 56 Z" fill="url(#hachuraS)" stroke="none"></path> <path d="M43 64 C 49 63, 53 69, 51 76 C 49 81, 44 81, 42 77 Z" fill="url(#hachuraS2)" stroke="none"></path> <path d="M38 98 C 37 106, 42 112, 50 112 C 46 108, 44 103, 45 97 Z" fill="url(#hachuraS2)" stroke="none"></path> <path d="M26 34 C 24 44, 25 56, 30 66 L 34 62 C 30 52, 30 42, 32 32 Z" fill="url(#hachuraS)" stroke="none" opacity="0.7"></path> <path d="M44 12 C 70 6, 88 26, 86 52 C 85 70, 74 80, 68 90 C 62 100, 64 110, 52 114 C 42 117, 36 108, 40 100 C 44 92, 40 86, 34 80 C 24 70, 20 54, 22 40 C 25 24, 32 14, 44 12 Z" stroke-width="1.8"></path> <path d="M40 22 C 62 14, 78 32, 76 52 C 75 66, 66 74, 60 84" stroke-width="1.3"></path> <path d="M48 34 C 60 32, 66 44, 62 56 C 59 64, 52 68, 50 76" stroke-width="1.4"></path> <path d="M52 40 C 46 42, 42 48, 44 54" stroke-width="1.1"></path> <path d="M44 62 C 40 66, 40 74, 46 78 C 50 80, 54 76, 52 70" stroke-width="1.3"></path> <path d="M36 66 C 32 70, 32 78, 38 80" stroke-width="1.5"></path> <path d="M58 88 C 54 92, 50 92, 47 90" stroke-width="1.1"></path> </g> <g class="notas" fill="#000000" stroke="#000000" stroke-linecap="round" filter="url(#tremidoS)"><g transform="translate(2,4)"><g class="nota"><ellipse cx="5" cy="18" rx="4.6" ry="3.3" transform="rotate(-22 5 18)" stroke="none"></ellipse><line x1="9.2" y1="17" x2="9.2" y2="2" stroke-width="1.5" fill="none"></line><path d="M9.2 2 C 13 5, 16.5 8, 13.5 13.5" stroke-width="1.5" fill="none"></path></g></g><g transform="translate(14,-6)"><g class="nota n2"><ellipse cx="5" cy="18" rx="4.6" ry="3.3" transform="rotate(-22 5 18)" stroke="none"></ellipse><line x1="9.2" y1="17" x2="9.2" y2="2" stroke-width="1.5" fill="none"></line><path d="M9.2 2 C 13 5, 16.5 8, 13.5 13.5" stroke-width="1.5" fill="none"></path></g></g></g></svg></div>
   <header>
     <h1>Gravador de Bolso</h1>
     <p class="tag">Grave com o que estiver à mão, corte o manuseio, limpe o som e exporte em WAV ou MP3. Feito para trabalhos de arte sonora que não precisam de estúdio.</p>
@@ -215,7 +224,7 @@ footer{text-align:center;border-top:1px solid #000}
   <section class="mod" aria-labelledby="h1s">
     <h2 id="h1s"><span class="num">1</span>Gravar ou abrir</h2>
     <div class="recrow">
-      <button class="recbtn" id="recBtn" aria-label="Gravar"><svg class="ear" viewBox="0 0 100 124" aria-hidden="true"> <defs> <pattern id="hachura" width="3.2" height="3.2" patternUnits="userSpaceOnUse" patternTransform="rotate(38)"> <line x1="0" y1="0" x2="0" y2="3.2" stroke="#000000" stroke-width="0.9"></line> </pattern> <pattern id="hachura2" width="3.6" height="3.6" patternUnits="userSpaceOnUse" patternTransform="rotate(-46)"> <line x1="0" y1="0" x2="0" y2="3.6" stroke="#000000" stroke-width="0.8"></line> </pattern> <filter id="tremido" x="-10%" y="-10%" width="120%" height="120%"> <feTurbulence type="fractalNoise" baseFrequency="0.06" numOctaves="2" seed="9"></feTurbulence> <feDisplacementMap in="SourceGraphic" scale="2.2" xChannelSelector="R" yChannelSelector="G"></feDisplacementMap> </filter> </defs> <g filter="url(#tremido)" fill="none" stroke="#000000" stroke-linecap="round" stroke-linejoin="round"> <path d="M60 18 C 78 22, 88 40, 85 58 C 83 69, 77 77, 70 85 L 62 81 C 70 71, 76 61, 76 50 C 76 33, 66 22, 52 20 Z" fill="url(#hachura)" stroke="none"></path> <path d="M40 56 C 52 52, 60 60, 58 74 C 56 84, 46 88, 40 82 C 34 74, 34 62, 40 56 Z" fill="url(#hachura)" stroke="none"></path> <path d="M43 64 C 49 63, 53 69, 51 76 C 49 81, 44 81, 42 77 Z" fill="url(#hachura2)" stroke="none"></path> <path d="M38 98 C 37 106, 42 112, 50 112 C 46 108, 44 103, 45 97 Z" fill="url(#hachura2)" stroke="none"></path> <path d="M26 34 C 24 44, 25 56, 30 66 L 34 62 C 30 52, 30 42, 32 32 Z" fill="url(#hachura)" stroke="none" opacity="0.7"></path> <path d="M44 12 C 70 6, 88 26, 86 52 C 85 70, 74 80, 68 90 C 62 100, 64 110, 52 114 C 42 117, 36 108, 40 100 C 44 92, 40 86, 34 80 C 24 70, 20 54, 22 40 C 25 24, 32 14, 44 12 Z" stroke-width="1.8"></path> <path d="M40 22 C 62 14, 78 32, 76 52 C 75 66, 66 74, 60 84" stroke-width="1.3"></path> <path d="M48 34 C 60 32, 66 44, 62 56 C 59 64, 52 68, 50 76" stroke-width="1.4"></path> <path d="M52 40 C 46 42, 42 48, 44 54" stroke-width="1.1"></path> <path d="M44 62 C 40 66, 40 74, 46 78 C 50 80, 54 76, 52 70" stroke-width="1.3"></path> <path d="M36 66 C 32 70, 32 78, 38 80" stroke-width="1.5"></path> <path d="M58 88 C 54 92, 50 92, 47 90" stroke-width="1.1"></path> </g> </svg></button>
+      <button class="recbtn" id="recBtn" aria-label="Gravar"><svg class="ear" viewBox="0 0 100 124" aria-hidden="true"> <defs> <pattern id="hachura" width="3.2" height="3.2" patternUnits="userSpaceOnUse" patternTransform="rotate(38)"> <line x1="0" y1="0" x2="0" y2="3.2" stroke="#000000" stroke-width="0.9"></line> </pattern> <pattern id="hachura2" width="3.6" height="3.6" patternUnits="userSpaceOnUse" patternTransform="rotate(-46)"> <line x1="0" y1="0" x2="0" y2="3.6" stroke="#000000" stroke-width="0.8"></line> </pattern> <filter id="tremido" x="-10%" y="-10%" width="120%" height="120%"> <feTurbulence type="fractalNoise" baseFrequency="0.06" numOctaves="2" seed="9"></feTurbulence> <feDisplacementMap in="SourceGraphic" scale="2.2" xChannelSelector="R" yChannelSelector="G"></feDisplacementMap> </filter> </defs> <g filter="url(#tremido)" fill="none" stroke="#000000" stroke-linecap="round" stroke-linejoin="round"> <path d="M60 18 C 78 22, 88 40, 85 58 C 83 69, 77 77, 70 85 L 62 81 C 70 71, 76 61, 76 50 C 76 33, 66 22, 52 20 Z" fill="url(#hachura)" stroke="none"></path> <path d="M40 56 C 52 52, 60 60, 58 74 C 56 84, 46 88, 40 82 C 34 74, 34 62, 40 56 Z" fill="url(#hachura)" stroke="none"></path> <path d="M43 64 C 49 63, 53 69, 51 76 C 49 81, 44 81, 42 77 Z" fill="url(#hachura2)" stroke="none"></path> <path d="M38 98 C 37 106, 42 112, 50 112 C 46 108, 44 103, 45 97 Z" fill="url(#hachura2)" stroke="none"></path> <path d="M26 34 C 24 44, 25 56, 30 66 L 34 62 C 30 52, 30 42, 32 32 Z" fill="url(#hachura)" stroke="none" opacity="0.7"></path> <path d="M44 12 C 70 6, 88 26, 86 52 C 85 70, 74 80, 68 90 C 62 100, 64 110, 52 114 C 42 117, 36 108, 40 100 C 44 92, 40 86, 34 80 C 24 70, 20 54, 22 40 C 25 24, 32 14, 44 12 Z" stroke-width="1.8"></path> <path d="M40 22 C 62 14, 78 32, 76 52 C 75 66, 66 74, 60 84" stroke-width="1.3"></path> <path d="M48 34 C 60 32, 66 44, 62 56 C 59 64, 52 68, 50 76" stroke-width="1.4"></path> <path d="M52 40 C 46 42, 42 48, 44 54" stroke-width="1.1"></path> <path d="M44 62 C 40 66, 40 74, 46 78 C 50 80, 54 76, 52 70" stroke-width="1.3"></path> <path d="M36 66 C 32 70, 32 78, 38 80" stroke-width="1.5"></path> <path d="M58 88 C 54 92, 50 92, 47 90" stroke-width="1.1"></path> </g> <g class="notas" fill="#000000" stroke="#000000" stroke-linecap="round" filter="url(#tremido)"><g transform="translate(2,4)"><g class="nota"><ellipse cx="5" cy="18" rx="4.6" ry="3.3" transform="rotate(-22 5 18)" stroke="none"></ellipse><line x1="9.2" y1="17" x2="9.2" y2="2" stroke-width="1.5" fill="none"></line><path d="M9.2 2 C 13 5, 16.5 8, 13.5 13.5" stroke-width="1.5" fill="none"></path></g></g><g transform="translate(14,-6)"><g class="nota n2"><ellipse cx="5" cy="18" rx="4.6" ry="3.3" transform="rotate(-22 5 18)" stroke="none"></ellipse><line x1="9.2" y1="17" x2="9.2" y2="2" stroke-width="1.5" fill="none"></line><path d="M9.2 2 C 13 5, 16.5 8, 13.5 13.5" stroke-width="1.5" fill="none"></path></g></g></g></svg></button>
       <div class="recside">
         <div class="row" style="justify-content:space-between">
           <span class="timer" id="recTime">0:00,0</span>
@@ -371,7 +380,7 @@ footer{text-align:center;border-top:1px solid #000}
   <section class="mod" aria-labelledby="h3s">
     <h2 id="h3s"><span class="num">3</span>Exportar</h2>
     <label class="field" for="outName">Nome do arquivo<input type="text" id="outName" value="gravacao_tratada" style="font-family:var(--f-mono)"></label>
-    <div class="row">
+    <div class="row exrow">
       <button class="btn primary" id="exWav24">WAV 24 bits</button>
       <button class="btn" id="exWav16">WAV 16 bits</button>
       <button class="btn" id="exMp3">MP3 320 kbps</button>
@@ -1103,6 +1112,7 @@ $('#tpPlay').onclick = () => {
   tpPlay();
 };
 $('#tpStop').onclick = () => { stopPlay(); tp.pos = null; };
+(function () { const a = document.getElementById('abertura'); if (!a) return; setTimeout(() => a.classList.add('sai'), 1700); setTimeout(() => a.remove(), 2200); })();
 setPP(false);
 
 /* ---------- estúdio de música concreta ---------- */

@@ -9,8 +9,8 @@
   "id": "./",
   "display": "standalone",
   "orientation": "any",
-  "background_color": "#e8ebe6",
-  "theme_color": "#151816",
+  "background_color": "#ffffff",
+  "theme_color": "#ffffff",
   "categories": [
     "music",
     "education",
