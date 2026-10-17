@@ -1,5 +1,5 @@
 /* Gravador de Bolso Lite — funciona sem internet depois da primeira visita */
-const CACHE = 'gravador-de-bolso-lite-v10';
+const CACHE = 'gravador-de-bolso-lite-v11';
 const SHELL = ['./', './index.html', './manifest.webmanifest', './lame.min.js',
   './icon-192.png', './icon-512.png', './icon-maskable-512.png', './apple-touch-icon.png'];
 self.addEventListener('install', e => {
