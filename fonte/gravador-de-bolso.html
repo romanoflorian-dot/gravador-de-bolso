@@ -115,6 +115,8 @@ canvas{display:block;width:100%}
 .check{display:flex;gap:10px;align-items:flex-start;font-size:14px}
 .check input{margin-top:3px;accent-color:var(--accent);width:16px;height:16px;flex:none}
 .check small{display:block;color:var(--ink-3);font-size:12.5px}
+.gridp{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;align-items:end}
+@media (max-width:560px){.gridp{grid-template-columns:1fr}}
 .grid2{display:grid;grid-template-columns:minmax(0,2fr) minmax(0,1fr) minmax(0,1fr);gap:12px;align-items:end}
 @media (max-width:560px){.grid2{grid-template-columns:1fr 1fr}.grid2 .field:first-child{grid-column:1/-1}}
 .status{font-size:13.5px;color:var(--ink-2);min-height:1.5em}
@@ -217,12 +219,34 @@ footer .credit{font-size:13.5px;color:var(--ink-2);font-weight:600}
       <label class="check"><input type="checkbox" id="optDeclip"><span>Reconstruir picos saturados<small>Redesenha os trechos que bateram em 0 dB. Fica ligado sozinho quando há saturação.</small></span></label>
       <label class="check"><input type="checkbox" id="optMono"><span>Usar um canal só<small>Corrige gravações em oposição de fase, que somem quando tocadas em mono. Escolhe o canal com menos saturação.</small></span></label>
       <label class="check"><input type="checkbox" id="optFades" checked><span>Entrada e saída suaves<small>0,2 s no começo e 0,8 s no fim, para não estalar.</small></span></label>
+      <label class="check"><input type="checkbox" id="optLevel"><span>Nivelamento automático<small>Como o AUTO LEVEL dos gravadores Zoom: sobe aos poucos os trechos baixos e desce os altos, até 12 dB. Atua depois da gravação, sem mexer no microfone.</small></span></label>
     </div>
+    <div class="gridp">
+      <label class="field" for="locut">Corte de graves
+        <select id="locut">
+          <option value="auto" selected>35 Hz · padrão do tratamento</option>
+          <option value="80">80 Hz · vento e manuseio</option>
+          <option value="120">120 Hz · voz, ronco forte</option>
+          <option value="off">Desligado</option>
+        </select>
+      </label>
+      <label class="field" for="nr">Redução de ruído
+        <select id="nr">
+          <option value="0" selected>Desligada</option>
+          <option value="8">Leve · até −8 dB</option>
+          <option value="14">Média · até −14 dB</option>
+          <option value="20">Forte · até −20 dB</option>
+        </select>
+      </label>
+    </div>
+    <div class="sub" id="nrNote" hidden></div>
     <div class="grid2">
       <label class="field" for="target">Volume final
         <select id="target">
+          <option value="-14">−14 LUFS · plataformas de música</option>
           <option value="-16" selected>−16 LUFS · internet e celular</option>
           <option value="-23">−23 LUFS · rádio e transmissão</option>
+          <option value="peak">Normalizar o pico em −1 dBFS</option>
           <option value="none">Manter o volume gravado</option>
         </select>
       </label>
@@ -435,7 +459,7 @@ function analyze(t) {
   for (const ch of chs) { let c = 0, p = 0; for (let i = 0; i < n; i++) { const a = Math.abs(ch[i]); if (a > p) p = a; if (a >= 0.999) c++; } clip.push(c); if (p > peak) peak = p; }
   let corr = null;
   if (chs.length > 1) { let sLR = 0, sL = 0, sR = 0; const L = chs[0], R = chs[1]; for (let i = 0; i < n; i += 2) { sLR += L[i] * R[i]; sL += L[i] * L[i]; sR += R[i] * R[i]; } corr = (sL > 0 && sR > 0) ? sLR / Math.sqrt(sL * sR) : 1; }
-  return { dur: n / sr, peak, clip, clipTotal: clip.reduce((a, b) => a + b, 0), corr, lufs: lufs(chs, sr), handling: detectHandling(chs, sr) };
+  return { dur: n / sr, peak, clip, clipTotal: clip.reduce((a, b) => a + b, 0), corr, lufs: lufs(chs, sr), handling: detectHandling(chs, sr), floor: noiseFloor(chs, sr) };
 }
 
 /* ---------- tratamento ---------- */
@@ -459,7 +483,7 @@ function declip(x) {
   }
   return y;
 }
-async function applyChain(chs, sr, preset) {
+async function applyChain(chs, sr, preset, hp35 = true) {
   const n = chs[0].length, oc = new OfflineAudioContext(chs.length, n, sr);
   const buf = oc.createBuffer(chs.length, n, sr); chs.forEach((c, i) => buf.copyToChannel(c, i));
   const src = oc.createBufferSource(); src.buffer = buf;
@@ -467,7 +491,8 @@ async function applyChain(chs, sr, preset) {
   const hp = f('highpass', 35, 0.707), pk = f('peaking', 300, 1.0, -1.5), sh = f('highshelf', 3200, null, preset === 'forte' ? 4 : 2);
   const comp = oc.createDynamicsCompressor();
   comp.threshold.value = -26; comp.knee.value = 4; comp.ratio.value = 3; comp.attack.value = 0.008; comp.release.value = 0.15;
-  src.connect(hp); hp.connect(pk); pk.connect(sh);
+  if (hp35) { src.connect(hp); hp.connect(pk); } else src.connect(pk);
+  pk.connect(sh);
   if (preset === 'forte') {
     const ex1 = f('highpass', 3500, 0.707), ex2 = f('highpass', 3500, 0.707), ws = oc.createWaveShaper(), eg = oc.createGain();
     const curve = new Float32Array(2049); for (let i = 0; i < curve.length; i++) { const x = i / 1024 - 1; curve[i] = Math.tanh(5 * x); }
@@ -498,6 +523,112 @@ function limit(chs, sr, ceil) {
   for (let i = n - 2; i >= 0; i--) { const lim = g[i + 1] + step * (1 - g[i + 1]); if (g[i] > lim) g[i] = lim; }
   return chs.map(ch => { const y = new Float32Array(n); for (let i = 0; i < n; i++) { let v = ch[i] * g[i]; if (v > ceil) v = ceil; else if (v < -ceil) v = -ceil; y[i] = v; } return y; });
 }
+/* Corte de graves: Butterworth de 4.ª ordem (24 dB/oitava) */
+function loCut(chs, sr, f) {
+  const k1 = biquadCoefs('highpass', f, sr, 0.5411961), k2 = biquadCoefs('highpass', f, sr, 1.3065630);
+  return chs.map(c => biquad(biquad(c, k1), k2));
+}
+/* FFT radix-2 complexa, no lugar */
+function makeFFT(N) {
+  const lg = Math.log2(N), rev = new Uint32Array(N), cs = new Float64Array(N / 2), sn = new Float64Array(N / 2);
+  for (let i = 0; i < N; i++) { let r = 0; for (let b = 0; b < lg; b++) r |= ((i >> b) & 1) << (lg - 1 - b); rev[i] = r; }
+  for (let i = 0; i < N / 2; i++) { cs[i] = Math.cos(2 * Math.PI * i / N); sn[i] = Math.sin(2 * Math.PI * i / N); }
+  return (re, im, inv) => {
+    for (let i = 0; i < N; i++) { const j = rev[i]; if (j > i) { let t = re[i]; re[i] = re[j]; re[j] = t; t = im[i]; im[i] = im[j]; im[j] = t; } }
+    const sg = inv ? 1 : -1;
+    for (let size = 2; size <= N; size <<= 1) {
+      const half = size >> 1, step = N / size;
+      for (let s = 0; s < N; s += size) for (let k = 0; k < half; k++) {
+        const wr = cs[k * step], wi = sg * sn[k * step], a = s + k, b = a + half;
+        const tr = re[b] * wr - im[b] * wi, ti = re[b] * wi + im[b] * wr;
+        re[b] = re[a] - tr; im[b] = im[a] - ti; re[a] += tr; im[a] += ti;
+      }
+    }
+    if (inv) for (let i = 0; i < N; i++) { re[i] /= N; im[i] /= N; }
+  };
+}
+/* Ruído de fundo: média dos 10 % de trechos de 50 ms mais silenciosos (dBFS RMS) */
+function noiseFloor(chs, sr) {
+  const hop = Math.round(sr * 0.05), nf = Math.floor(chs[0].length / hop); if (nf < 10) return -Infinity;
+  const e = new Float64Array(nf);
+  for (const m of chs) for (let k = 0; k < nf; k++) { let a = 0; const o = k * hop; for (let i = 0; i < hop; i++) a += m[o + i] * m[o + i]; e[k] += a / (hop * chs.length); }
+  const s = Array.from(e).sort((x, y) => x - y), q = Math.max(3, Math.floor(nf * 0.1));
+  let a = 0; for (let i = 0; i < q; i++) a += s[i];
+  return 10 * Math.log10(a / q + 1e-20);
+}
+/* Redução de ruído espectral. O perfil do ruído vem dos 10 % de quadros mais silenciosos da tomada;
+   o ganho é igual nos dois canais (não desloca a imagem estéreo). red = atenuação máxima em dB. */
+async function denoise(chs, sr, red, progress) {
+  const N = sr > 64000 ? 4096 : 2048, H = N / 4, n = chs[0].length, nch = chs.length;
+  if (n < N * 4) return { chs, noise: -Infinity };
+  const fft = makeFFT(N), win = new Float64Array(N);
+  for (let i = 0; i < N; i++) win[i] = 0.5 - 0.5 * Math.cos(2 * Math.PI * i / N);
+  const pad = N, len = n + 2 * pad, nFr = Math.floor((len - N) / H) + 1;
+  const src = chs.map(c => { const z = new Float32Array(len); z.set(c, pad); return z; });
+  const L = src[0], R = nch > 1 ? src[1] : null;
+  const re = new Float64Array(N), im = new Float64Array(N), B = N / 2 + 1;
+  const load = o => { for (let i = 0; i < N; i++) { re[i] = L[o + i] * win[i]; im[i] = R ? R[o + i] * win[i] : 0; } };
+  // 1) energia de cada quadro e escolha dos mais silenciosos (ignora as bordas zeradas)
+  const fe = [];
+  for (let f = 0; f < nFr; f++) { const o = f * H; if (o < pad || o + N > pad + n) continue; let a = 0; for (let i = 0; i < N; i += 4) { const v = L[o + i]; a += v * v; if (R) { const w = R[o + i]; a += w * w; } } fe.push([a, f]); }
+  if (fe.length < 8) return { chs, noise: -Infinity };
+  fe.sort((x, y) => x[0] - y[0]);
+  const pick = fe.slice(0, Math.max(6, Math.floor(fe.length * 0.1)));
+  const noise = new Float64Array(B);
+  for (const [, f] of pick) {
+    load(f * H); fft(re, im, false);
+    for (let k = 0; k < B; k++) { const j = (N - k) % N; noise[k] += (re[k] * re[k] + im[k] * im[k] + re[j] * re[j] + im[j] * im[j]) / 2; }
+  }
+  for (let k = 0; k < B; k++) noise[k] /= pick.length;
+  // 2) subtração espectral com piso, suavizada no tempo e na frequência
+  const floor = Math.pow(10, -red / 20), over = 1 + red / 10;
+  const rel = Math.exp(-H / (0.06 * sr)), gPrev = new Float64Array(B).fill(1), g = new Float64Array(B), gs = new Float64Array(B);
+  const outL = new Float64Array(len), outR = R ? new Float64Array(len) : null, norm = 1.5;
+  for (let f = 0; f < nFr; f++) {
+    const o = f * H; load(o); fft(re, im, false);
+    for (let k = 0; k < B; k++) {
+      const j = (N - k) % N, P = (re[k] * re[k] + im[k] * im[k] + re[j] * re[j] + im[j] * im[j]) / 2;
+      let v = P > 0 ? 1 - over * noise[k] / P : 0; if (v < floor) v = floor;
+      v = v > gPrev[k] ? v : gPrev[k] * rel + v * (1 - rel);
+      g[k] = gPrev[k] = v;
+    }
+    for (let k = 0; k < B; k++) { let a = 0, c = 0; for (let d = -2; d <= 2; d++) { const q = k + d; if (q >= 0 && q < B) { a += g[q]; c++; } } gs[k] = Math.max(floor, Math.min(g[k], a / c * 1.15)); }
+    for (let k = 0; k < N; k++) { const G = gs[k < B ? k : N - k]; re[k] *= G; im[k] *= G; }
+    fft(re, im, true);
+    for (let i = 0; i < N; i++) { outL[o + i] += re[i] * win[i] / norm; if (outR) outR[o + i] += im[i] * win[i] / norm; }
+    if (progress && f % 400 === 0) await progress(f / nFr);
+  }
+  const res = [Float32Array.from(outL.subarray(pad, pad + n))];
+  if (outR) res.push(Float32Array.from(outR.subarray(pad, pad + n)));
+  let nP = 0; for (let k = 1; k < B; k++) nP += noise[k];
+  const ws = win.reduce((a, b) => a + b * b, 0);
+  return { chs: res, noise: 10 * Math.log10(2 * nP / (ws * N * nch) + 1e-20) };
+}
+/* Nivelamento automático: ganho lento que aproxima cada trecho do nível típico da tomada.
+   Trechos de silêncio mantêm o ganho anterior (não sobe o ruído de fundo). */
+function autoLevel(chs, sr, maxDb = 12) {
+  const n = chs[0].length, hop = Math.round(sr * 0.05), nf = Math.floor(n / hop); if (nf < 20) return chs;
+  const hp = biquadCoefs('highpass', 100, sr, 0.707), m = biquad(mixMono(chs), hp);
+  const e = new Float64Array(nf);
+  for (let k = 0; k < nf; k++) { let a = 0; const o = k * hop; for (let i = 0; i < hop; i++) a += m[o + i] * m[o + i]; e[k] = a / hop; }
+  const lv = new Float64Array(nf);   // nível em janela de 400 ms
+  for (let k = 0; k < nf; k++) { let a = 0, c = 0; for (let d = -4; d <= 3; d++) { const q = k + d; if (q >= 0 && q < nf) { a += e[q]; c++; } } lv[k] = 10 * Math.log10(a / c + 1e-20); }
+  const top = Math.max(...lv), act = Array.from(lv).filter(v => v > top - 40 && v > -60).sort((a, b) => a - b);
+  if (act.length < 10) return chs;
+  const target = act[Math.floor(act.length * 0.6)];
+  const up = Math.exp(-0.05 / 1.5), down = Math.exp(-0.05 / 0.3), gk = new Float64Array(nf + 1);
+  let g = 0;
+  for (let k = 0; k < nf; k++) {
+    if (lv[k] > top - 40 && lv[k] > -60) {
+      let want = (target - lv[k]) * 0.75; want = Math.max(-maxDb, Math.min(maxDb, want));
+      g = want < g ? g * down + want * (1 - down) : g * up + want * (1 - up);
+    }
+    gk[k] = g;
+  }
+  gk[nf] = g;
+  const G = gk.map(v => Math.pow(10, v / 20));
+  return chs.map(c => { const y = new Float32Array(n); for (let i = 0; i < n; i++) { const p = i / hop, k = Math.min(nf - 1, Math.floor(p)), t = p - k; y[i] = c[i] * (G[k] * (1 - t) + G[k + 1] * t); } return y; });
+}
 function applyFades(chs, sr, fin, fout) {
   const n = chs[0].length, a = Math.min(Math.round(fin * sr), n >> 1), b = Math.min(Math.round(fout * sr), n >> 1);
   for (const c of chs) {
@@ -512,6 +643,7 @@ function currentOpts() {
     preset: document.querySelector('input[name=preset]:checked').value,
     declip: $('#optDeclip').checked, mono: $('#optMono').checked && cur && cur.chs.length > 1,
     fades: $('#optFades').checked, target: $('#target').value,
+    level: $('#optLevel').checked, locut: $('#locut').value, nr: parseFloat($('#nr').value) || 0,
     padPre: Math.max(0, Math.min(600, parseFloat($('#padPre').value) || 0)),
     padPost: Math.max(0, Math.min(600, parseFloat($('#padPost').value) || 0)),
     a: cur ? cur.trimStart : 0, b: cur ? cur.trimEnd : 0
@@ -532,9 +664,20 @@ async function getRender() {
   if (o.declip) chs = chs.map(declip);
   const a = Math.floor(o.a * sr), b = Math.max(a + 1, Math.floor(o.b * sr));
   chs = chs.map(c => c.slice(a, b));
-  if (o.preset !== 'nenhum') chs = await applyChain(chs, sr, o.preset);
+  let noiseDb = null;
+  if (o.nr > 0) {
+    const d = await denoise(chs, sr, o.nr, async p => { setStatus('Reduzindo o ruído… ' + Math.round(100 * p) + '%'); await tick(); });
+    chs = d.chs; noiseDb = d.noise;
+  }
+  if (o.locut === '80' || o.locut === '120') chs = loCut(chs, sr, parseFloat(o.locut));
+  if (o.preset !== 'nenhum') chs = await applyChain(chs, sr, o.preset, o.locut !== 'off');
+  if (o.level) { setStatus('Nivelando…'); await tick(); chs = autoLevel(chs, sr); }
   const ceil = Math.pow(10, -1 / 20);
-  if (o.target !== 'none') {
+  if (o.target === 'peak') {
+    let p = 0; for (const c of chs) for (let i = 0; i < c.length; i++) { const v = Math.abs(c[i]); if (v > p) p = v; }
+    if (p > 0) { const g = ceil / p; for (const c of chs) for (let i = 0; i < c.length; i++) c[i] *= g; }
+    chs = limit(chs, sr, ceil);
+  } else if (o.target !== 'none') {
     // ganho até o alvo e limitador; repete porque o limitador baixa um pouco a média
     const T = parseFloat(o.target);
     for (let pass = 0; pass < 4; pass++) {
@@ -551,7 +694,9 @@ async function getRender() {
   let peak = 0; for (const c of body) for (let i = 0; i < c.length; i++) { const v = Math.abs(c[i]); if (v > peak) peak = v; }
   const pre = Math.round(o.padPre * sr), post = Math.round(o.padPost * sr);
   if (pre || post) chs = chs.map(c => { const z = new Float32Array(pre + c.length + post); z.set(c, pre); return z; });
-  const r = { chs, sr, pre, post, lufs: finalL, peak, dur: chs[0].length / sr, bodyDur: body[0].length / sr, mono: chs.length === 1 };
+  const r = { chs, sr, pre, post, lufs: finalL, peak, dur: chs[0].length / sr, bodyDur: body[0].length / sr, mono: chs.length === 1, noiseDb };
+  const nn = $('#nrNote');
+  if (nn) { nn.hidden = noiseDb === null; if (noiseDb !== null) nn.textContent = isFinite(noiseDb) ? 'Ruído de fundo medido antes da redução: ' + fmt(noiseDb) + ' dBFS. Quanto mais baixo, mais limpa a gravação.' : 'Tomada curta demais para medir o ruído; a redução não foi aplicada.'; }
   renderCache = { key, r };
   $('#summary').textContent = 'Saída: ' + fmtTime(r.dur) + (pre || post ? ' (com ' + fmt(o.padPre, 0) + ' s + ' + fmt(o.padPost, 0) + ' s de silêncio)' : '') + ' · ' + (isFinite(r.lufs) ? fmt(r.lufs) + ' LUFS' : 'sem sinal') + ' · pico ' + fmt(dB(r.peak)) + ' dBFS · ' + (r.mono ? 'mono' : 'estéreo') + ' · ' + fmt(sr / 1000, 1) + ' kHz';
   setStatus('');
@@ -682,6 +827,7 @@ function renderDiag() {
   box.append(chip(A.clipTotal > 0 ? 'bad' : pk > -3 ? 'warn' : 'ok', 'Pico', fmt(pk) + ' dBFS'));
   box.append(chip(A.clipTotal > 0 ? 'bad' : 'ok', 'Saturação', A.clipTotal > 0 ? A.clipTotal.toLocaleString('pt-BR') + ' amostras' : 'nenhuma'));
   box.append(chip(!isFinite(A.lufs) ? 'warn' : A.lufs < -40 ? 'warn' : '', 'Volume', isFinite(A.lufs) ? fmt(A.lufs) + ' LUFS' : 'sem sinal'));
+  if (isFinite(A.floor)) box.append(chip(A.floor > -45 ? 'warn' : 'ok', 'Ruído de fundo', fmt(A.floor) + ' dBFS'));
   if (A.corr === null) box.append(chip('ok', 'Fase', 'mono'));
   else box.append(chip(A.corr < -0.2 ? 'bad' : A.corr < 0.2 ? 'warn' : 'ok', 'Fase', A.corr < -0.2 ? 'invertida' : A.corr < 0.2 ? 'estéreo muito largo' : 'ok'));
   const h = A.handling;
@@ -776,7 +922,7 @@ $('#trimA').addEventListener('change', () => cur && setTrim(parseFloat($('#trimA
 $('#trimB').addEventListener('change', () => cur && setTrim(cur.trimStart, parseFloat($('#trimB').value) || cur.analysis.dur));
 $('#autoTrim').onclick = () => { const h = cur && cur.analysis.handling; if (h) { setTrim(h.start, h.end); setStatus('Corte aplicado: de ' + fmt(h.start) + ' s a ' + fmt(h.end) + ' s.'); } };
 $('#resetTrim').onclick = () => { if (cur) { setTrim(0, cur.analysis.dur); setStatus(''); } };
-for (const id of ['optDeclip', 'optMono', 'optFades', 'target', 'padPre', 'padPost']) $('#' + id).addEventListener('change', () => { invalidate(); $('#summary').textContent = ''; });
+for (const id of ['optDeclip', 'optMono', 'optFades', 'optLevel', 'locut', 'nr', 'target', 'padPre', 'padPost']) $('#' + id).addEventListener('change', () => { invalidate(); $('#summary').textContent = ''; });
 for (const r of document.querySelectorAll('input[name=preset]')) r.addEventListener('change', () => { invalidate(); $('#summary').textContent = ''; });
 window.addEventListener('resize', () => { drawWave(); drawMeter(-90); });
 
